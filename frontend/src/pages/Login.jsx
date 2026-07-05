@@ -4,10 +4,12 @@ import { message } from 'antd';
 import Stamp from '../components/Stamp';
 import { login } from '../api/auth';
 import { useAuth } from '../context/AuthContext';
+import { useRole } from '../context/RoleContext';
 
 function Login() {
   const navigate = useNavigate();
   const { setUser } = useAuth();
+  const { setRole } = useRole();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [submitting, setSubmitting] = useState(false);
@@ -18,6 +20,7 @@ function Login() {
     login(email, password)
       .then((res) => {
         setUser(res.data.data);
+        setRole(res.data.data.role);
         navigate('/dashboard');
       })
       .catch((err) => {

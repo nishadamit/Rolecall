@@ -33,7 +33,7 @@ function Sidebar() {
       </div>
       <div className="org-name">{user?.org_name || 'MAIN BRANCH · NO AUTH'}</div>
 
-      <RoleSwitcher />
+      {/* <RoleSwitcher /> */}
 
       <div className="user-card">
         <Stamp size="md" name={user?.name} role={user?.role} />
