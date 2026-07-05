@@ -2,7 +2,11 @@ const pool = require('../config/db');
 
 const getAllTasks = async (req, res) => {
   try {
-    const [rows] = await pool.query('SELECT * FROM tasks');
+    const [rows] = await pool.query(
+      `SELECT tasks.*, users.name AS assigned_name
+       FROM tasks
+       LEFT JOIN users ON tasks.assigned_to = users.id`
+    );
     res.status(200).json({ data: rows });
   } catch (err) {
     console.error('Error fetching tasks:', err);

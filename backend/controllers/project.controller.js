@@ -2,7 +2,11 @@ const pool = require('../config/db');
 
 const getAllProjects = async (req, res) => {
   try {
-    const [rows] = await pool.query('SELECT * FROM projects');
+    const [rows] = await pool.query(
+      `SELECT projects.*, users.name AS manager_name, users.role AS manager_role
+       FROM projects
+       LEFT JOIN users ON projects.manager_id = users.id`
+    );
     res.status(200).json({ data: rows });
   } catch (err) {
     console.error('Error fetching projects:', err);

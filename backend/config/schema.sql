@@ -1,7 +1,7 @@
 -- Rolecall — Base Schema
--- No auth-related fields (password, tokens, etc.) live here.
--- Those are added per auth branch, since different methods store
--- credentials differently (password hash vs OAuth ID vs nothing at all).
+-- Basic email/password authentication (plaintext, no hashing) lives directly
+-- on users.password for now. Session-based login/logout only — no route
+-- protection yet.
 
 CREATE DATABASE IF NOT EXISTS rolecall;
 USE rolecall;
@@ -18,6 +18,7 @@ CREATE TABLE users (
   name VARCHAR(255) NOT NULL,
   email VARCHAR(255) UNIQUE NOT NULL,
   role VARCHAR(50) DEFAULT 'member',   -- super_admin | org_admin | manager | member
+  password VARCHAR(255) NOT NULL DEFAULT '',
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (org_id) REFERENCES organizations(id)
 );
@@ -51,3 +52,37 @@ CREATE TABLE tasks (
   FOREIGN KEY (project_id) REFERENCES projects(id),
   FOREIGN KEY (assigned_to) REFERENCES users(id)
 );
+
+-- Dummy seed data
+
+INSERT INTO organizations (id, name) VALUES
+  (1, 'Acme Org'),
+  (2, 'Globex Corp'),
+  (3, 'Initech');
+
+INSERT INTO users (id, org_id, name, email, role, password) VALUES
+  (1, 1, 'Jane Manager', 'jane@acme.com', 'manager', 'password123'),
+  (2, 1, 'Sam Admin', 'sam@acme.com', 'org_admin', 'password123'),
+  (3, 2, 'Priya Manager', 'priya@globex.com', 'manager', 'password123'),
+  (4, 3, 'Diego Manager', 'diego@initech.com', 'manager', 'password123'),
+  (5, 1, 'Alex Member', 'alex@acme.com', 'member', 'password123');
+
+INSERT INTO projects (id, org_id, manager_id, title, description) VALUES
+  (1, 1, 1, 'Rolecall Launch', 'Ship the auth learning app'),
+  (2, 1, 1, 'Auth Playground', 'Sandbox for comparing auth strategies'),
+  (3, 2, 3, 'Globex Migration', 'Migrate Globex legacy tasks into Rolecall'),
+  (4, 3, 4, 'Initech TPS Tracker', 'Track TPS report tasks across teams');
+
+INSERT INTO project_members (project_id, user_id) VALUES
+  (1, 1), (1, 2), (1, 5),
+  (2, 1), (2, 5),
+  (3, 3),
+  (4, 4);
+
+INSERT INTO tasks (project_id, assigned_to, title, status) VALUES
+  (1, 5, 'Set up backend scaffold', 'done'),
+  (1, 5, 'Set up frontend scaffold', 'done'),
+  (1, 1, 'Wire up project CRUD API', 'in_progress'),
+  (2, 1, 'Implement JWT auth branch', 'todo'),
+  (3, 3, 'Export Globex task data', 'todo'),
+  (4, 4, 'Build TPS report view', 'todo');
