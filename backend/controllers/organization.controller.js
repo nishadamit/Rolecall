@@ -2,15 +2,26 @@ const pool = require('../config/db');
 
 const getAllOrganizations = async (req, res) => {
   try {
-    const [rows] = await pool.query(
-      `SELECT organizations.*,
-              COUNT(DISTINCT users.id) AS user_count,
-              COUNT(DISTINCT projects.id) AS project_count
-       FROM organizations
-       LEFT JOIN users ON users.org_id = organizations.id
-       LEFT JOIN projects ON projects.org_id = organizations.id
-       GROUP BY organizations.id`
-    );
+    let query = `
+      SELECT organizations.*,
+             COUNT(DISTINCT users.id) AS user_count,
+             COUNT(DISTINCT projects.id) AS project_count
+      FROM organizations
+      LEFT JOIN users ON users.org_id = organizations.id
+      LEFT JOIN projects ON projects.org_id = organizations.id
+    `;
+    const params = [];
+    const user = req.currentUser;
+
+    if (user && user.role !== 'super_admin') {
+      query += ' WHERE organizations.id = ?';
+      params.push(user.org_id);
+    }
+    // super_admin, or no session: unscoped
+
+    query += ' GROUP BY organizations.id';
+
+    const [rows] = await pool.query(query, params);
     res.status(200).json({ data: rows });
   } catch (err) {
     console.error('Error fetching organizations:', err);

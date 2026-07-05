@@ -2,12 +2,22 @@ const pool = require('../config/db');
 
 const getAllUsers = async (req, res) => {
   try {
-    const [rows] = await pool.query(
-      `SELECT users.id, users.org_id, users.name, users.email, users.role, users.created_at,
-              organizations.name AS org_name
-       FROM users
-       LEFT JOIN organizations ON users.org_id = organizations.id`
-    );
+    let query = `
+      SELECT users.id, users.org_id, users.name, users.email, users.role, users.created_at,
+             organizations.name AS org_name
+      FROM users
+      LEFT JOIN organizations ON users.org_id = organizations.id
+    `;
+    const params = [];
+    const user = req.currentUser;
+
+    if (user && user.role !== 'super_admin') {
+      query += ' WHERE users.org_id = ?';
+      params.push(user.org_id);
+    }
+    // super_admin, or no session: unscoped
+
+    const [rows] = await pool.query(query, params);
     res.status(200).json({ data: rows });
   } catch (err) {
     console.error('Error fetching users:', err);

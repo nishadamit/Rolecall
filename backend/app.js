@@ -8,6 +8,7 @@ const taskRoutes = require('./routes/task.routes');
 const organizationRoutes = require('./routes/organization.routes');
 const userRoutes = require('./routes/user.routes');
 const authRoutes = require('./routes/auth.routes');
+const attachUser = require('./middleware/attachUser');
 
 const app = express();
 
@@ -21,6 +22,7 @@ app.use(
     cookie: { httpOnly: true, sameSite: 'lax', secure: false },
   })
 );
+app.use(attachUser);
 
 app.use('/api/auth', authRoutes);
 app.use('/api/projects', projectRoutes);

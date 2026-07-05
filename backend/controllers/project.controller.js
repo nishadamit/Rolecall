@@ -2,11 +2,30 @@ const pool = require('../config/db');
 
 const getAllProjects = async (req, res) => {
   try {
-    const [rows] = await pool.query(
-      `SELECT projects.*, users.name AS manager_name, users.role AS manager_role
-       FROM projects
-       LEFT JOIN users ON projects.manager_id = users.id`
-    );
+    let query = `
+      SELECT projects.*, users.name AS manager_name, users.role AS manager_role
+      FROM projects
+      LEFT JOIN users ON projects.manager_id = users.id
+    `;
+    const params = [];
+    const user = req.currentUser;
+
+    if (user?.role === 'org_admin') {
+      query += ' WHERE projects.org_id = ?';
+      params.push(user.org_id);
+    } else if (user?.role === 'manager') {
+      query += ' WHERE projects.manager_id = ?';
+      params.push(user.id);
+    } else if (user?.role === 'member') {
+      query += `
+        WHERE projects.manager_id = ?
+           OR projects.id IN (SELECT project_id FROM project_members WHERE user_id = ?)
+      `;
+      params.push(user.id, user.id);
+    }
+    // super_admin, or no session: unscoped
+
+    const [rows] = await pool.query(query, params);
     res.status(200).json({ data: rows });
   } catch (err) {
     console.error('Error fetching projects:', err);

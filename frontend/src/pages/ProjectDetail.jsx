@@ -9,12 +9,7 @@ import AppShell from '../components/AppShell';
 import PageHeader from '../components/PageHeader';
 import Modal from '../components/Modal';
 import { ROLE_META, useRole } from '../context/RoleContext';
-
-const STATUS_META = {
-  todo: { className: 'todo', label: 'To Do' },
-  in_progress: { className: 'progress', label: 'In Progress' },
-  done: { className: 'done', label: 'Done' },
-};
+import { STATUS_META } from '../constants/taskStatus';
 
 function CreateTaskModal({ projectId, orgUsers, onClose, onCreated }) {
   const [title, setTitle] = useState('');

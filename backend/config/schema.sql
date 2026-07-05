@@ -65,7 +65,8 @@ INSERT INTO users (id, org_id, name, email, role, password) VALUES
   (2, 1, 'Sam Admin', 'sam@acme.com', 'org_admin', 'password123'),
   (3, 2, 'Priya Manager', 'priya@globex.com', 'manager', 'password123'),
   (4, 3, 'Diego Manager', 'diego@initech.com', 'manager', 'password123'),
-  (5, 1, 'Alex Member', 'alex@acme.com', 'member', 'password123');
+  (5, 1, 'Alex Member', 'alex@acme.com', 'member', 'password123'),
+  (6, 1, 'Sarah Admin', 'sarah@rolecall.dev', 'super_admin', 'password123');
 
 INSERT INTO projects (id, org_id, manager_id, title, description) VALUES
   (1, 1, 1, 'Rolecall Launch', 'Ship the auth learning app'),
